@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pathfinding Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:opsz,wght@9..144,300;9..144,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo">⬡</span>
+      <h1>Pathfinding Analyzer</h1>
+      <span class="tagline">8 algorithms · 4 mazes · full metrics</span>
+    </div>
+    <div class="topbar-right">
+      <div class="mode-pills">
+        <button class="mode-pill active" id="modeSingle" onclick="setMode('single')">Single</button>
+        <button class="mode-pill" id="modeCompare" onclick="setMode('compare')">Compare</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- LEFT PANEL -->
+    <aside class="panel panel-left">
+
+      <div class="panel-section">
+        <div class="panel-label">Algorithm</div>
+        <div class="algo-grid" id="algoGrid">
+          <button class="algo-btn active" data-algo="bfs">BFS</button>
+          <button class="algo-btn" data-algo="dfs">DFS</button>
+          <button class="algo-btn" data-algo="dijkstra">Dijkstra</button>
+          <button class="algo-btn" data-algo="astar">A*</button>
+          <button class="algo-btn" data-algo="greedy">Greedy</button>
+          <button class="algo-btn" data-algo="bidir">Bi-BFS</button>
+          <button class="algo-btn" data-algo="bellman">Bellman-Ford</button>
+          <button class="algo-btn" data-algo="jps">Jump Point</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Heuristic <span class="label-note">(A* / Greedy / JPS)</span></div>
+        <div class="radio-group">
+          <label class="radio-row"><input type="radio" name="heuristic" value="manhattan" checked> Manhattan</label>
+          <label class="radio-row"><input type="radio" name="heuristic" value="euclidean"> Euclidean</label>
+          <label class="radio-row"><input type="radio" name="heuristic" value="chebyshev"> Chebyshev</label>
+          <label class="radio-row"><input type="radio" name="heuristic" value="octile"> Octile</label>
+        </div>
+      </div>
+
+      <div class="panel-section" id="compareAlgoSection" style="display:none">
+        <div class="panel-label">Compare Against</div>
+        <select id="algoB" class="select-field">
+          <option value="bfs">BFS</option>
+          <option value="dfs">DFS</option>
+          <option value="dijkstra">Dijkstra</option>
+          <option value="astar" selected>A*</option>
+          <option value="greedy">Greedy</option>
+          <option value="bidir">Bi-BFS</option>
+          <option value="bellman">Bellman-Ford</option>
+          <option value="jps">Jump Point</option>
+        </select>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Draw Mode</div>
+        <div class="draw-pills">
+          <button class="draw-pill active" id="drawWall"     onclick="setDrawMode('wall')">Wall</button>
+          <button class="draw-pill"        id="drawWeight5"  onclick="setDrawMode('w5')">Wt ×5</button>
+          <button class="draw-pill"        id="drawWeight10" onclick="setDrawMode('w10')">Wt ×10</button>
+        </div>
+        <label class="toggle-row">
+          <input type="checkbox" id="diagToggle">
+          <span class="toggle-label">Diagonal movement</span>
+        </label>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Generate Maze</div>
+        <button class="maze-btn" onclick="genMaze('recursive')">▦ Recursive Division</button>
+        <button class="maze-btn" onclick="genMaze('prims')">◈ Prim's Algorithm</button>
+        <button class="maze-btn" onclick="genMaze('kruskal')">◉ Kruskal's Algorithm</button>
+        <button class="maze-btn" onclick="genMaze('backtrack')">↺ Recursive Backtrack</button>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Speed</div>
+        <div class="speed-row">
+          <span class="speed-label">slow</span>
+          <input type="range" id="speedSlider" min="1" max="5" value="3">
+          <span class="speed-label">fast</span>
+        </div>
+      </div>
+
+      <div class="panel-section actions-section">
+        <button class="btn-primary"   id="runBtn" onclick="runAlgo()">▶ Visualize</button>
+        <button class="btn-secondary" onclick="resetPath()">⌫ Clear Path</button>
+        <button class="btn-secondary" onclick="resetAll()">⟳ Clear All</button>
+      </div>
+
+    </aside>
+
+    <!-- CENTER -->
+    <main class="canvas-area">
+
+      <div id="singleView">
+        <div class="canvas-header">
+          <span id="algoLabel" class="algo-label">BFS — Breadth-First Search</span>
+          <span id="statusDot" class="status-dot idle"></span>
+        </div>
+        <canvas id="mainCanvas"></canvas>
+        <div class="status-bar" id="statusBar">Click to paint walls · Drag S/E to move · Hit Visualize</div>
+      </div>
+
+      <div id="compareView" style="display:none">
+        <div class="compare-row">
+          <div class="compare-col">
+            <div class="canvas-header">
+              <span class="algo-label" id="cmpLabelA">—</span>
+              <span class="status-dot idle" id="dotA"></span>
+            </div>
+            <canvas id="cmpCanvas1"></canvas>
+          </div>
+          <div class="compare-col">
+            <div class="canvas-header">
+              <span class="algo-label" id="cmpLabelB">—</span>
+              <span class="status-dot idle" id="dotB"></span>
+            </div>
+            <canvas id="cmpCanvas2"></canvas>
+          </div>
+        </div>
+        <div id="cmpMetrics" style="margin-top:10px"></div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="panel panel-right">
+
+      <div class="panel-section">
+        <div class="panel-label">Metrics</div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-val"              id="mNodes">—</div>
+            <div class="metric-name">Nodes Explored</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val accent-brown" id="mPath">—</div>
+            <div class="metric-name">Path Length</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val accent-blue"  id="mTime">—</div>
+            <div class="metric-name">Time (ms)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val accent-green" id="mCost">—</div>
+            <div class="metric-name">Path Cost</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Legend</div>
+        <div class="legend">
+          <div class="legend-row"><div class="legend-dot" style="background:var(--start)"></div><span>Start</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--end)"></div><span>End</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--wall)"></div><span>Wall</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--w5)"></div><span>Weight ×5</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--w10)"></div><span>Weight ×10</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--visited)"></div><span>Visited (fwd)</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--visited-b)"></div><span>Visited (back)</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--path)"></div><span>Path</span></div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Algorithm Info</div>
+        <div class="algo-info-box" id="algoInfoBox"></div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
