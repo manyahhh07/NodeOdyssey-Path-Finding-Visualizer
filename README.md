@@ -1,3 +1,5 @@
+<div align="center">
+
 # Pathfinding Analyzer — Advanced Graph Algorithm Visualizer
 
 Interactive pathfinding and graph-search visualization platform featuring **8 algorithms**, **maze generation systems**, **heuristic tuning**, and **real-time performance comparison tools**.
@@ -9,6 +11,9 @@ Built entirely with **Vanilla JavaScript**, focused on algorithm analysis, short
 ![Visualization](https://img.shields.io/badge/Visualization-RealTime-blue)
 ![Frontend](https://img.shields.io/badge/Frontend-Vanilla_JS-orange)
 ![License](https://img.shields.io/badge/License-MIT-blue)
+
+
+</div>
 
 ---
 
