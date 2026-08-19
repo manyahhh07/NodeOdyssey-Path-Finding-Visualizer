@@ -13,6 +13,8 @@ Built entirely with **Vanilla JavaScript**, focused on algorithm analysis, short
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
 
+</div>
+
 ---
 
 ## Features
